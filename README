@@ -1,3 +1,6 @@
+This repository contains some nice munin plugins for prestashop. 
+They let you monitor the orders per day and the number of products in your shop.
+
 [prestashop*]
 env.DB testdb
 env.HOST localhost
