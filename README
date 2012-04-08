@@ -1,0 +1,6 @@
+[prestashop*]
+env.DB testdb
+env.HOST localhost
+env.USER testuser
+env.PASS testpwd
+env.TABLEPREFIX testshop_

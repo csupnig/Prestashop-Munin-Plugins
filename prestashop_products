@@ -1,0 +1,43 @@
+#!/usr/bin/php
+<?php
+ 
+// these are setup in the plugin config, or you could hardcode them
+$db = getenv('DB');
+$host = getenv('HOST');
+$user = getenv('USER');
+$pass = getenv('PASS');
+$prefix = getenv('TABLEPREFIX');
+ 
+// this is for munin's configuration tool
+// could do something more complicated here
+if(count($argv) == 2 && $arv[1] == 'authconf') {
+	exit('yes');
+}
+// this is for rrdtool to know how to label the graph
+if(count($argv) == 2 && $argv[1] == 'config') {
+	echo("graph_title Products\n");
+	echo("graph_vlabel count\n");
+	echo("graph_category Prestashop\n");
+	echo("productsenabled.label Active products\n");
+//	echo("productsenabled.type COUNTER\n");	
+	echo("productsavailable.label Available products\n");
+//	echo("productsavailable.type COUNTER\n");
+	echo("productsoos.label Products out of stock\n");
+  //      echo("productsoos.type COUNTER\n");
+	exit();
+}
+ 
+// this is the usual case, generating a label and value
+mysql_connect($host, $user, $pass);
+mysql_select_db($db);
+$rs = mysql_query("SELECT COUNT(*) FROM {$prefix}product WHERE active = 1");
+$rows = mysql_fetch_array($rs);
+echo("productsenabled.value {$rows[0]}\n");
+
+$rs = mysql_query("SELECT COUNT(*) FROM {$prefix}product WHERE active = 1 AND available_for_order = 1");
+$rows = mysql_fetch_array($rs);
+echo("productsavailable.value {$rows[0]}\n");
+
+$rs = mysql_query("SELECT COUNT(*) FROM {$prefix}product WHERE active = 1 AND available_for_order = 0");
+$rows = mysql_fetch_array($rs);
+echo("productsoos.value {$rows[0]}\n");

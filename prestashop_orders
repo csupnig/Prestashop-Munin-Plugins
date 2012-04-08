@@ -1,0 +1,31 @@
+#!/usr/bin/php
+<?php
+ 
+// these are setup in the plugin config, or you could hardcode them
+$db = getenv('DB');
+$host = getenv('HOST');
+$user = getenv('USER');
+$pass = getenv('PASS');
+$prefix = getenv('TABLEPREFIX');
+ 
+// this is for munin's configuration tool
+// could do something more complicated here
+if(count($argv) == 2 && $arv[1] == 'authconf') {
+	exit('yes');
+}
+// this is for rrdtool to know how to label the graph
+if(count($argv) == 2 && $argv[1] == 'config') {
+	echo("graph_title Orders per day\n");
+	echo("graph_vlabel count\n");
+	echo("graph_category Prestashop\n");
+	echo("ordersperday.label Orders per day\n");
+//	echo("ordersperday.type COUNTER\n");	
+	exit();
+}
+ 
+// this is the usual case, generating a label and value
+mysql_connect($host, $user, $pass);
+mysql_select_db($db);
+$rs = mysql_query("SELECT COUNT(*) FROM {$prefix}orders WHERE DATE(date_add) = DATE(NOW())");
+$rows = mysql_fetch_array($rs);
+echo("ordersperday.value {$rows[0]}\n");
